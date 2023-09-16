@@ -1,116 +1,118 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-// import { parseString } from "xml2js";
 
-const getfiles = (query) => {
-	const url = 'https://8a7hysrefd.execute-api.eu-north-1.amazonaws.com/dev/s3?key=' + query
-	axios.get(url, { responseType: 'blob' }) //<-- ändrat här
-	.then((response) => {
-		// Hämta event-objektet från svaret
-		console.log('här är responset', response);
-		// const eventObject = response.data;
-		// console.log('Här är vår data', eventObject);
-	  
-		// const fileNames = eventObject.body
-		// console.log(fileNames);
+import AWS from 'aws-sdk';
 
-		const binaryData = response.data;
-console.log('binaryData:', binaryData);
-		// Anta att content type är 'image/jpeg' som ett exempel
-		const contentType = response.headers['content-type'];
-		// const contentType = 'image/jpeg';
-		console.log('contentType är: ', contentType);
-  
-		// Skapa en blob från binärdatan
-		const blob = new Blob([binaryData], { type: contentType });
-  console.log("blob",blob);
-		// Skapa en objekt-URL från blobben för att visa bilden (eller använd FileReader för andra filtyper)
-		const imageUrl = URL.createObjectURL(blob);
-		console.log('bild-url:en är: ', imageUrl);
-  
-		// Visa bilden i en <img> tag
-		const imgElement = document.createElement('img');
-		imgElement.src = imageUrl;
-		document.body.appendChild(imgElement);
-  console.log(imgElement);
-		// Alternativt, om du vill tolka binärdata som text, använd FileReader
-		// const textDecoder = new TextDecoder('utf-8'); // Ange teckenkodning
-		// const textData = textDecoder.decode(binaryData);
-		// console.log(textData);
+//obs ta bort information
+AWS.config.update({
+	accessKeyId: "",
+	secretAccessKey: "",
+	region: 'eu-north-1',
+	bucket: 'nutestarjaglitebara'
+});
 
-
-	  })
-	  .catch((error) => {
-		console.error('Error fetching data:', error);
-	  });
-}
-
-
-const uploadfiles = (query, file) => {
-	const url = 'https://8a7hysrefd.execute-api.eu-north-1.amazonaws.com/dev/s3?key=' + query
-
-  // Skapa ett FormData-objekt
-  const formData = new FormData();
-
-  // Lägg till filen i FormData
-  formData.append('file', file);
-
-	axios.put(url, formData, {
-		headers: {
-			'Content-Type': file.type
-		},
-	})
-	.then((response) => {
-		console.log(response);
-		return {
-			statusCode: '200',
-			message: 'Upload success!'
-		}
-	})
-	.catch((error) => {
-		console.error('Error uploading data:', error);
-	})
-}
-
-const showFile = (fileInfo, setFile) => {
-	console.log(fileInfo);
-	
-    setFile(fileInfo);
-}
-
+const s3 = new AWS.S3();
 
 const Home = () => {
-	const [eventData, setEventData] = useState(null);
-	const [updatedData, setUpdatedData] = useState(0)
+	// statevariabler för att hantera: 
+	//1. file är vilken fil som är vald
+	//2. images är en array med filnamn(för att kunna ta fram rätt url till img-taggen längre ner.
+	//3. textMessage sätter en time:at meddelande när man laddat upp en fil)
 	const [file, setFile] = useState('')
+	const [images, setImages] = useState([]);
+	const [textMessage, setTextMessage] = useState(null)
 
-	
 	useEffect(() => {
-	  // Gör en GET-förfrågan till ditt API
-	  getfiles('nutestarjaglitebara/buzzlightyear.jpeg')
-	//   setEventData(allFiles)
-	
-	}, [updatedData]);
+		getImages()
+	}, []);
 
-	// console.log('Här är vår eventData', eventData);
 
-	return(
+
+	const uploadfile = () => {
+		const postUrl = 'https://8a7hysrefd.execute-api.eu-north-1.amazonaws.com/dev/upload'
+
+		//Skickar först ett POST för att få ut "presigned url"(be chatGPT förklara) som man sedan kan använda för att skicka PUT request som jag fattat det.
+
+		fetch(postUrl, {
+			method: 'POST',
+			mode: 'cors',
+			body: JSON.stringify({ key: `${file.type}/${file.name}` })
+		})
+
+			.then((res) => res.json()) //ser ut såhär {"URL": url} i res
+			.then((res) => {
+				console.log(res);
+				fetch(res.URL, {
+					method: 'PUT',
+					mode: 'cors',
+					body: file
+				})
+					.then((res) => {
+						console.log(res);
+						getImages(); //<-- för att få updaterad image-array
+					})
+					.catch((err) => console.log(err))
+			})
+			.catch((err) => console.log(err))
+
+		const visible = setTimeout(() => {
+			setTextMessage("Hurra! Din fil har blivit uppladdad!")
+		}, 500)
+
+		const hidden = setTimeout(() => {
+			setTextMessage(null)
+		}, 4000)
+
+		return () => {
+			clearTimeout(visible)
+			clearTimeout(hidden)
+		}
+	}
+
+	function getImages() {
+
+		const params = {
+			Bucket: 'nutestarjaglitebara',
+		};
+
+		s3.listObjectsV2(params, (err, data) => {
+			if (err) {
+				console.error('Fel vid hämtning av bilder:', err);
+			} else {
+
+				const imageList = data.Contents.map((obj) => obj.Key); //<-- listar alla filnamn
+				return setImages(imageList);
+			}
+		});
+
+	};
+
+	const updateFile = (fileInfo) => {
+		console.log(fileInfo);
+
+		setFile(fileInfo);
+	}
+
+
+
+	return (
 		<>
 			<div className="div-add-picture">
 				<label htmlFor="input-add-picture">Lägg upp en bild här</label>
-				<input id="input-add-picture" type="file" accept="image/*"  onChange={(event) => showFile(event.target.files[0], setFile)}/>
-				<button className="button-add-picture" type="button" onClick={() => uploadfiles(`nutestarjaglitebara/${file.name}`, file)}>Lägg till bild</button>
-				
+				<input id="input-add-picture" type="file" accept="image/*" onChange={(event) => updateFile(event.target.files[0])} />
+				<button className="button-add-picture" type="button" onClick={() => { uploadfile(); getImages() }}>Lägg till bild</button>
 			</div>
-			{/* {eventData.map(file => (
-				<div>
-					<p>{file.Key}</p>
-				</div>
-			)) } */}
-		
-		</>		
+			<div>
+				<p>{textMessage}</p>
+				<ul className="image-container">
+					{images.map((image, index) => (
+						<li key={index}><img className="image-box" src={`http://nutestarjaglitebara.s3-website.eu-north-1.amazonaws.com/${image}`}></img></li>
+					))}
+				</ul>
+			</div>
+
+		</>
 	)
-	
+
 }
 
 export default Home
