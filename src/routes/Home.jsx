@@ -39,7 +39,7 @@ const Home = () => {
 //  const requestBody = { key: `${encodeURIComponent(file.type)}/${encodeURIComponent(file.name)}` };
 
 // >>>>>>TESTA ATT LOGGA:<<<<<<
-console.log(JSON.stringify({ key: `${encodeURIComponent(file.name)}` }));
+console.log('Vad vi skickar in i body till servern',JSON.stringify({ key: `${encodeURIComponent(file.name)}` }));
 // För att se exakt vad vi skickar in i body
 
 
@@ -54,8 +54,12 @@ console.log(JSON.stringify({ key: `${encodeURIComponent(file.name)}` }));
 
 			.then((res) => res.json()) //ser ut såhär {"URL": url} i res
 			.then((res) => {
-				console.log('Vårt response från post är: ', res);
-				fetch(res.URL, {
+				console.log('Vårt response från post är: ', res.body);
+				
+				const response = res.body.replace('\"', '"')
+				const jsonResponse = JSON.parse(response)
+		
+				fetch(jsonResponse.URL, {
 					method: 'PUT',
 					mode: 'cors',
 					headers: {
@@ -70,7 +74,7 @@ console.log(JSON.stringify({ key: `${encodeURIComponent(file.name)}` }));
 					.catch((err) => console.log(err))
 			})
 			.catch((err) => console.log(err))
-			console.log('Detta är body', body);
+			console.log('Detta är body-innehållet i loggat efter PUT', file);
 		const visible = setTimeout(() => {
 			setTextMessage("Hurra! Din fil har blivit uppladdad!")
 		}, 500)
@@ -105,7 +109,7 @@ console.log(JSON.stringify({ key: `${encodeURIComponent(file.name)}` }));
 	};
 
 	const updateFile = (fileInfo) => {
-		console.log(fileInfo);
+		console.log("fileinfo is: " + JSON.stringify(fileInfo));
 
 		setFile(fileInfo);
 	}
@@ -134,3 +138,9 @@ console.log(JSON.stringify({ key: `${encodeURIComponent(file.name)}` }));
 }
 
 export default Home
+
+
+"{\"URL\":\"https://nutestarjaglitebara.s3.eu-north-1.amazonaws.com/20200725_094033.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAUX3D4XEXBYUOBQTR%2F20230917%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20230917T173442Z&X-Amz-Expires=60&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEKn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCmV1LW5vcnRoLTEiRjBEAiAFVcr8enaQGjNQmFTxZGNzbTwIYsRV6IofETa320pTUwIgWCIPfXkNpSXzBk0JzYWmCt%2BSh%2BDJz43fdmmDGthVBI8qlQMIk%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgwzMjYwOTAxNDQwNDYiDFXZrDndczbT8yXNmSrpAjjBXyHUPhLwsXlJZgDm2vPJTLqLizl2AqBiekKl1U5xFzGkuZVQHf0bCYQ5lVSCGwOhXPJVsVPVqBYj406LXIArJ9d90B8HZNC5R7ddp3ZYSA4NoeUH%2FQrwtJzpWM5GqOmmE6QH8JDKcc0T6DeQJUPwPx3g%2FYBUZpLjxDOqse6IZZ4Gqq7F8MoucnLcO7uJkyJElnZjQMCzRipI5rF7GrmWdqiAUmLSSavXXLLvhQUrkSiHDJUeGAx%2FR7%2BSxkOojxoxZ2846qdHqcJbmMATnA9FJADeweTQ%2Fo1G%2BTlz2h0qf2e0MSt7EFL%2BucNyDFPQevj%2Fe%2FULKjqvlf5y9xeSMny8TqRt9rmN8FXOwYdW82vsb%2Bv6RIBBVf2iNGjzBc6Ku3EOTjE%2Fb8KTcB6wOKDz8Ix6u7a7sxBKyyGiEzLbr%2BLYKlSEQxIzYL33Gsz2dIdTdfndMCahCIK1FBXDTqFN2ynNxWIWMR1S6SEwsfGcqAY6ngGlPeelzkdRx4moHUQZDzRBWfD0paU3%2BH%2B%2FjorMoJN4%2Fpg2fZZcjt5wsdKBhJo%2BZ6bEHZe1On10tFg%2ByADmz6Q8yKVuuxRXJvfxeuzY7SH13PVgHXHxKyf%2FqVdHylSeppB6xdEXpPEj91HJnCLO%2BxJht5lgTIUknwy67FKCsqG4%2BXp0rwZRbE87Tv14%2BFhL5pJr46n8NfUplejo9AapqQ%3D%3D&X-Amz-Signature=93b677edecb3e896a4d32a55051340236c765d4678e161ef131772e15b0767e2&X-Amz-SignedHeaders=host&x-id=PutObject\"}"
+
+
+
