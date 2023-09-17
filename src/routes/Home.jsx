@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import AWS from 'aws-sdk';
 
 //obs ta bort information
@@ -32,18 +31,36 @@ const Home = () => {
 
 		//Skickar först ett POST för att få ut "presigned url"(be chatGPT förklara) som man sedan kan använda för att skicka PUT request som jag fattat det.
 
+ // Logga filnamn och filtyp här för att inspektera dem
+ console.log('File name:', file.name);
+ console.log('File type:', file.type);
+
+ // Skapa en JSON-sträng för att skicka till servern
+//  const requestBody = { key: `${encodeURIComponent(file.type)}/${encodeURIComponent(file.name)}` };
+
+// >>>>>>TESTA ATT LOGGA:<<<<<<
+console.log(JSON.stringify({ key: `${encodeURIComponent(file.name)}` }));
+// För att se exakt vad vi skickar in i body
+
+
 		fetch(postUrl, {
 			method: 'POST',
 			mode: 'cors',
-			body: JSON.stringify({ key: `${file.type}/${file.name}` })
+			headers: {
+				'Content-Type': 'application/json',
+			  },
+			body: JSON.stringify({ key: `${encodeURIComponent(file.name)}` })
 		})
 
 			.then((res) => res.json()) //ser ut såhär {"URL": url} i res
 			.then((res) => {
-				console.log(res);
+				console.log('Vårt response från post är: ', res);
 				fetch(res.URL, {
 					method: 'PUT',
 					mode: 'cors',
+					headers: {
+						'Content-Type': file.type,
+					  },
 					body: file
 				})
 					.then((res) => {
@@ -53,7 +70,7 @@ const Home = () => {
 					.catch((err) => console.log(err))
 			})
 			.catch((err) => console.log(err))
-
+			console.log('Detta är body', body);
 		const visible = setTimeout(() => {
 			setTextMessage("Hurra! Din fil har blivit uppladdad!")
 		}, 500)
@@ -67,6 +84,7 @@ const Home = () => {
 			clearTimeout(hidden)
 		}
 	}
+	
 
 	function getImages() {
 
