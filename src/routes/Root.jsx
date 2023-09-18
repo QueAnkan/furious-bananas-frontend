@@ -1,23 +1,24 @@
-import { Outlet, NavLink } from "react-router-dom"
-
+import { useState } from "react"
+import Home from "./Home.jsx"
 
 
 const Root = () => {
+	const [pictureMode, setPictureMode] = useState(true)
 
 	return (
 		<div className="root-container">
 			<h1>Vår minnessida</h1>
 			<nav>
-                <NavLink to="/" className="navlink"> Bilder </NavLink>
-                <NavLink to="/greetings" className="navlink"> Hälsningar </NavLink>
+				<button className={pictureMode ? 'mode-button active' : 'mode-button'} onClick={() => setPictureMode(true)}> Bilder </button>
+				<button className={!pictureMode ? 'mode-button active' : 'mode-button'} onClick={() => setPictureMode(false)}> Hälsningar </button>
 
-            </nav>
+			</nav>
 			<main className="main">
-				<Outlet/>
+				<Home pictureMode={pictureMode} />
 			</main>
-		
+
 		</div>
-		
+
 	)
 }
 console.log('root')

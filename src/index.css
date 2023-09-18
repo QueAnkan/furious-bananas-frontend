@@ -1,40 +1,33 @@
-*{
+* {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
 }
 
-img{
-	width:15em;
+img {
+	width: 15em;
 	height: auto;
 	margin: 1em;
 }
 
-button:hover{
+button:hover {
 	cursor: pointer;
 }
 
-.root-container{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 auto;
+.root-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0 auto;
 }
 
 
 h1 {
-  padding: 1em
-}
-.navlink{
-	padding: .5em 1em;
-	border: 1px solid #ceb10e;
-	border-radius: .7em .7em 0 0;
-	background-color: #e9da88 ;
-	
+	padding: 1em
 }
 
-
-.div-add-picture, .div-add-text{
+.div-add-picture,
+.div-add-text {
 	padding-top: 2em;
 	display: flex;
 	flex-direction: column;
@@ -42,11 +35,12 @@ h1 {
 	margin: 0 auto;
 }
 
-.input-add-picture{
-margin-top:1em;
+.input-add-picture {
+	margin-top: 1em;
 }
 
-.button-add-picture, .button-add-text {
+.button-add-picture,
+.button-add-greeting {
 	margin-top: 2em;
 	padding: .5em 1em;
 	border: 1px solid #ceb10e;
@@ -54,8 +48,47 @@ margin-top:1em;
 	background-color: #e9da88;
 }
 
-#input-add-text {
+.button-add-picture:hover,
+.button-add-greeting:hover {
+	background-color: #d1bc46;
+}
+
+#input-add-greeting {
+	padding: 0.2em 0.4em;
 	resize: none;
 }
 
+ul {
+	list-style: none;
+}
 
+a {
+	color: black;
+	text-decoration: none;
+}
+
+#input-name {
+	margin-bottom: 1em;
+}
+
+.greeting {
+	border: 1px solid gray;
+	margin: 0.7em;
+	border-radius: 0.5em;
+	padding: 0.3em 0.5em;
+}
+
+.mode-button {
+	padding: .5em 1em;
+	border: 1px solid #ceb10e;
+	border-radius: .7em .7em 0 0;
+	background-color: #e9da88;
+}
+
+.mode-button:hover {
+	background-color: #d1bc46;
+}
+
+.active {
+	background-color: #d1bc46;
+}
