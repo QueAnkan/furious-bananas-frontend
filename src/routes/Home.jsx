@@ -12,8 +12,6 @@ AWS.config.update({
 const s3 = new AWS.S3();
 
 
-
-
 const Home = ({ pictureMode }) => {
 	const [file, setFile] = useState('')
 	const [images, setImages] = useState([]);
@@ -35,7 +33,7 @@ const Home = ({ pictureMode }) => {
 						const fileContent = data.Body.toString('utf-8');
 						const jsonBody = JSON.parse(fileContent)
 						// console.log('jsonBody: ', jsonBody);
-						resolve({ fileName: fileName.replace('.txt', ''), content: jsonBody.fileContent });
+						resolve({ fileName: fileName.replace('greetings/', '').replace('.txt', ''), content: jsonBody.fileContent });
 					}
 				});
 			});
@@ -125,7 +123,7 @@ const Home = ({ pictureMode }) => {
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ key: `${encodeURIComponent(fileName)}` })
+			body: JSON.stringify({ key: `${(folderName)}${(fileName)}` })
 		})
 
 			.then((res) => res.json()) //ser ut såhär {"URL": url} i res
